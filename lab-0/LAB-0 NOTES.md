@@ -173,3 +173,28 @@ print(arr_float.dtype) # float32
 ```
 
 ---
+
+## Step 4: Array Properties
+
+### Essential Properties
+
+```python
+arr = np.array([[1,2,3,4],
+               [5,6,7,8],
+               [9,10,11,12]])
+
+# .shape - dimensions of the array (Most Important)
+print(arr.shape) #(3, 4) - 3 rows, 4 columns
+
+# .ndim - number of dimensions
+print(arr.ndim) # 2 (it's a 2D array)
+
+# .size - total number of elements
+print(arr.size) # 12 (3 * 4 = 12 elements)
+
+# .dtype - data type of the elements
+print(arr.dtype) # int64 by default
+
+# len() - length of fist dimension
+print(len(arr))
+```
