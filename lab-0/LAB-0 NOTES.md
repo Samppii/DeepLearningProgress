@@ -198,3 +198,49 @@ print(arr.dtype) # int64 by default
 # len() - length of fist dimension
 print(len(arr))
 ```
+
+### Understanding Shape
+
+```python
+# 1D array
+v = np.array([1,2,3])
+print(v.shape) #(3,) - just 3 elements, no second dimensions
+
+# 2D array
+M = np.array([[1,2,3],
+              [4,5,6]])
+print(M.shape) #(2,3) - 2 rows, 3 columns
+
+# 3D array
+T = np.zeros((2,3,4))
+print(T.shape)
+```
+
+### Why shape matters in Deep Learning?:
+- Input data must match expected shape
+- Matrix multiplication requires compatible shapes
+- Shape mismatches cause most beginner errors!
+
+### Documentation:
+- [Array attributes](https://numpy.org/doc/stable/reference/arrays.ndarray.html#array-attributes)
+
+### Practice:
+```python
+# Create arrays and predict their shape before checking:
+a = np.zeros((5,3)) # 5 rows and 3 columns of zeros
+b = np.array([1,2,3,4]) # 1D array of 1,2,3,4
+c = np.ones((2,4,3)) # 3D array, think of it as 2 layers of 4x3
+d = np.arrange(12) # Shape is (12,) - just a 1D array of 12 elements: [1,2,3,4,5,6,7,8,9,10,11,12]
+```
+
+## Step 5: Indexing and Slicing (Critical Skill)
+
+### 5.1 Basic Indexing (Single Elements)
+
+```python
+#1D array indexing
+v = np.array([10,20,30,40,50])
+
+v[0] # First element
+
+
