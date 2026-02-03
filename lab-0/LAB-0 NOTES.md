@@ -238,9 +238,144 @@ d = np.arrange(12) # Shape is (12,) - just a 1D array of 12 elements: [1,2,3,4,5
 ### 5.1 Basic Indexing (Single Elements)
 
 ```python
-#1D array indexing
+# 1D array indexing
 v = np.array([10,20,30,40,50])
 
-v[0] # First element
+v[0] # 10 - First element
+v[2] # 20 - Third element
+v[-1] # 50 - Last element
+v[-2] # 40 - Second to last element
+
+# 2D array indexing: arr[row, col]
+M = np.array([[1,2,3],
+              [4,5,6],
+              [7,8,9]])
+M[0,0] # Top left
+M[0,2] # Top right
+M[2,0] # Bottom left
+M[2,2] # Bottom right
+M[-1,-1] #9, last row last column
+```
+### 5.2 Slicing (Multiple Elements)
+
+**Syntax:** `arr[start:stop:step]`
+- `start`: Beginning index(inclusive, default to 0)
+- `stop`: Ending index (exclusive, default end)
+- `step`: Step size (default is 1)
+
+```python
+v = np.array([0,1,2,3,4,5,6,7,8,9])
+
+v[2:5] # [2,3,4] - index 2 to 4
+v[:4] # [0,1,2,3] - first 4 elements
+v[6:] # [6,7,8,9] - from index 6 to end
+v[::2] # [0,2,4,6,8] - every 2nd element
+v[::-1] # [9,8,7,6,5,4,3,2,1,0] - reversed
+v[1:8:2] # [1,3,5,7] - index 1 to 7, step 2
+```
+
+### 5.3 2D Slicing (Rows and Columns)
+
+```python
+M = np.array([[ 0,1,2,3],
+              [10,11,12,13],
+              [20,21,22,23],
+              [30,31,32,33]])
+
+# Syntax: arr[row_slice, col_slice]
+
+# Get entire row
+M[0, :] # [0, 1, 2, 3] - First row
+M[1, :] # [10, 11, 12, 13] - Second row
+M[-1, :] # [30, 31, 32, 33] - Last row
+
+# Get entire column
+M[:, 0] # [0, 10, 20, 30] - First Column
+M[:, -1] # [3, 13, 23, 33] - Second Column
+
+# Get submatrix (block)
+M[0:2, 0:2] # [[0, 1],
+            #  [10, 11]] - top-left 2x2
+
+M[1:3, 2:4] # [[12,13],
+            #  [22, 23]] - middle-right 2x2
+
+# Skip rows/columns
+M[::2, :] # Every other rows
+M[:, ::2] # Every other column
+```
+### 5.4 Fancy Indexing (Using Arrays as Indices)
+
+```python
+arr = np.array([10,20,30,40,50])
+
+# Use a list of indices
+indices = [0, 2, 4]
+arr[indices] #[10, 30, 50]
+
+# 2D Fancy Indexing
+M = np.array([[ 0, 1, 2],
+              [10, 11, 12],
+              [20, 21, 22]])
+row_indices = [0, 2]
+M[row_indices, :] #[[0, 1, 2],
+                  # [20, 21, 22]]
+```
+
+### 5.5 Boolean Indexing (Filtering)
+
+```python
+arr = np.array([1,5,3,8,2,9,4])
+
+# Creating boolean mask
+mask = arr > 4
+print(mask) # [False, True, False, True, False, True, False]
+
+# Use mask to filter
+arr[mask] # [5, 8, 9]
+
+# Or directly:
+arr[arr > 4] # [5, 8, 9]
+arr[arr % 2 == 0] # [8, 2, 4] - even numbers
+```
+
+### 5.6 Important: Views vs Copies
+
+```python
+# Slices create VIEWS (share memory with original!)
+original = np.array([1, 2, 3, 4, 5])
+slice_view = orginal[1:4]
+
+slice_view[0] = 999
+print(original) # [1, 999, 3, 4, 5] - ORIGINAL CHANGED!
 
 
+# To avoid this, make a copy:
+slice_copy = original[1:4].copy
+slice_copy[0] = 888
+print(original) # [1, 999, 3, 4, 5] - Original Unchanged
+```
+
+### 📚 Documentation:
+- [Indexing basics](https://numpy.org/doc/stable/user/basics.indexing.html)
+- [Advanced indexing](https://numpy.org/doc/stable/user/basics.indexing.html#advanced-indexing)
+
+
+### ✅ Practice:
+```python
+M = np.array([[ 0,  1,  2,  3,  4],
+              [10, 11, 12, 13, 14],
+              [20, 21, 22, 23, 24],
+              [30, 31, 32, 33, 34],
+              [40, 41, 42, 43, 44]])
+
+# Try to get:
+# 1. The element at row 2, column 3
+# 2. The entire third row
+# 3. The entire second column
+# 4. A 3x3 block from the center
+# 5. Every other row
+# 6. All elements greater than 25
+```
+
+---
