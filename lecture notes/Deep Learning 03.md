@@ -94,6 +94,7 @@ Given some weights W, we get scores. But how do we measure if these scores are c
 | 🐱    | cat        | 3.2       | 5.1       | -1.7       |
 | 🚗    | car        | 1.3       | 4.9       | 2.0        |
 | 🐸    | frog       | 2.2       | 2.5       | -3.1       |
+
 Problem: For the cat image, the car score (5.1) is higher than the cat score (3.2). This W is bad!
 
 **We need:**
