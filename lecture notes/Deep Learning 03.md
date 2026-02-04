@@ -226,6 +226,7 @@ This is **gradient descent**
 ### 7.1 the Problem 
 
 Some data can't be separated by a straight line/hyperplane:
+
 ![diagram](DL-IMAGES/Non-LinearDataExample.png)
 
 No single line can separate red from blue!
