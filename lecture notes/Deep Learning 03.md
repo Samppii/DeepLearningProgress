@@ -204,3 +204,235 @@ Loss = -log(0.01) = 4.6 ← Very high penalty!
 For classification with one-hot labels, they're mathematically related, but cross-entropy is the standard loss function.
 
 ---
+
+## 6. The Training Loop (Preview)
+
+```
+1. Forward pass: scores = Wx + b
+2. Softmax: Probabilities = softmax(scores)
+3. Loss: L = cross_entropy(probabilities, true_labels)
+4. Backward pass: compute gradients ∂L/∂W and ∂L/∂b
+5. Update: W = W - learning_rate x ∂L/∂W
+6. Repeat until loss is minimized
+```
+
+This is **gradient descent**
+
+---
+
+## 7. The Limitation: What if Data Isn't Linearly Separable?
+
+### 7.1 the Problem 
+
+Some data can't be separated by a straight line/hyperplane:
+![diagram](DL-IMAGES/Non-LinearDataExample.png)
+
+No single line can separate red from blue!
+
+### 7.2 The Solution: Non-Linear Transform
+
+**Idea:** Transform the data into a new space where it IS linearly separable.
+
+Example: Cartesian (x, y) → Polar (r, θ)
+
+``` 
+Original space (x, y):                  Transformed space (r, θ): 
+Can't separate linearly       →         CAN separate linearly! 
+```
+
+![diagram](DL-IMAGES/Non-LinearTransform+LinearClassifier.png)
+
+**Key Insight:** Non-linear functions "bend" the space to make classification easier.
+
+---
+
+## 8. Activation Functions (Non-Linear Transforms)
+
+These are the non-linear functions we insert between linear layers:
+
+| Function       | Formula                         | Range     | Notes                                 |
+| -------------- | ------------------------------- | --------- | ------------------------------------- |
+| **ReLU**       | `max(0, x)`                     | `[0, ∞)`  | Most common, simple, fast             |
+| **Leaky ReLU** | `max(0.01x, x)`                 | `(-∞, ∞)` | Fixes "dying ReLU" problem            |
+| **Sigmoid**    | `1/(1 + e^(-x))`                | `(0, 1)`  | Old-school, used in output for binary |
+| **Tanh**       | `(e^x - e^(-x))/(e^x + e^(-x))` | `(-1, 1)` | Zero-centered sigmoid                 |
+| **ELU**        | `x if x>0, else α(e^x - 1)`     | `(-α, ∞)` | Smooth, can go negative               |
+**ReLU is the default choice for hidden layers in modern networks.**
+
+---
+
+## 9. Stacking Linear Classifiers = Neural Network
+
+### 9.1 The Key Insight
+
+**One Linear Classifier:**
+```
+s = Wx
+```
+
+**Two-layer neural network:**
+```
+h = activation(W₁x) ← Hidden layer
+s = W₂h ← Output layer 
+```
+
+**Or written together:**
+```
+s = W₂ × activation(W₁ × x)
+```
+
+### 9.2 Dimensions Example
+
+``` 
+Input: x ∈ ℝ³⁰⁷² (32×32×3 image flattened) 
+Hidden: h ∈ ℝ¹⁰⁰ (100 hidden units) 
+Output: s ∈ ℝ¹⁰ (10 class scores) 
+W₁: 100×3072 (maps input to hidden) 
+W₂: 10×100 (maps hidden to output) 
+```
+
+``` 
+x ──[W₁]──→ h ──[W₂]──→ s 
+3072       100          10 
+```
+
+### 9.3 Why Does This Work?
+
+- **W₁** learns to extract useful features from raw pixels
+- **Activation** introduces non-linearity (bends the space)
+- **W₂** learns to classify based on those features
+
+Without the activation function, stacking linear layers is useless:
+
+```
+W₂(W₁x) = (W₂W₁)x = W'x ← Still just a linear function!
+```
+
+The activation is essential - it's what gives neural networks their power.
+
+### 9.4 Going Deeper
+
+**3-Layer Network:**
+```
+h₁ = activation(W₁x) 
+h₂ = activation(W₂h₁) 
+s = W₃h₂
+```
+
+**The Pattern:**
+```
+Linear → Activation → Linear → Activation → ... → Linear → Softmax → Cross entropy
+```
+
+More layers = more capacity to learn complex patterns. This is where "deep" learning comes from.
+
+---
+
+## 10. Graphical View: Fully Connected Networks
+
+![diagram](DL-IMAGES/FCNN.png)
+
+- Every Input connects to every hidden unit (fully connected)
+- Every hidden unit connects to every output
+- Each connection has a weight (learned parameter)
+
+**How many linear classifiers are there in a network with 2 hidden layers?**
+There are 3 linear classifiers (Input→hidden1, hidden1→hidden2, hidden2→output)
+
+---
+
+## 11. PyTorch Implementation
+
+### 11.1 Single Linear Layer
+
+```python
+import torch
+import torch.nn as nn
+
+# Linear layer: 20 inputs -> 30 outputs
+m = nn.linear(20,30)
+
+# Batch of 128 samples, each with 20 features
+input = torch.randn(128, 20)
+output = m(input)
+
+print(output.size()) # torch.Size([128, 30])
+print(m.weight.size()) # torch.Size([30, 20])
+print(m.bias.size()) # torch.Size([30])
+```
+
+### 11.2 Linear Classifier (with Softmax)
+
+```python
+import torch.nn as nn
+import torch.nn.functional as F
+
+class LinearClassifier(nn.Module):
+	def __init__(self):
+		super().__init__()
+		self.linear = nn.Linear(256, 10) # 256 features -> 10 classes
+		
+	def forward(self, x):
+		x = self.linear(x)       # Raw Scores (logits)
+		x = F.softmax(x, dim=1)  # Converts to probabilities
+		return x
+```
+
+### 11.3 Two-Layer Neural Network
+
+```python
+class TwoLayerNet(nn.Module):
+	def __init__(self):
+		super().__init__()
+		self.fc1 = nn.Linear(3072, 100) # Input -> Hidden
+		self.fc2 = nn.Linear(100, 10) # Hidden -> Output
+		
+	def forward(self, x):
+		x = self.fc1(x) # Linear Transform
+		x = F.relu(x) # Non-Linearity
+		x = self.fc2(x) # Linear Transform
+		x = F.softmax(x, dim=1) # Probabilities
+		return x
+```
+
+---
+
+## 12. Key Takeaways from Lecture 3
+
+1. **Linear Classifier: f(x, W) = Wx + b** - the fundamental building block
+2. **Softmax converts scores to probabilities** - exp() then normalize
+3. **Cross-entropy measures prediction errors** - heavily penalizes confident wrong answers
+4. **Linear Classifiers can't handle Non-Linear Data** - they can only draw straight decision boundaries
+5. **Activation functions introduce non-linearity** - ReLU is the modern default
+6. **Neural networks = stacked linear classifiers + activations** - this is literally what deep learning is
+7. **Without activations, stacking is pointless** - W₂(W₁x) = W'x, still linear
+8. **More layers = more capacity** - can learn increasingly complex patterns
+9. **PyTorch makes this easy** - nn.Linear + F.relu + F.softmax
+10. **Next up: How do we actually find good W?** - Gradient descent and back-propagation.
+
+---
+
+## Quick Reference : The Full Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                          FORWARD PASS                           │
+├─────────────────────────────────────────────────────────────────┤
+│    Image → Flatten → Linear(W₁) → ReLU → Linear(W₂) → Softmax   │
+│ [32×32×3]  [3072]    [100]        [100]  [10]         [10]      │
+│                                                    probabilities│
+└─────────────────────────────────────────────────────────────────┘
+								↓
+┌─────────────────────────────────────────────────────────────────┐
+│                              LOSS                               │
+├─────────────────────────────────────────────────────────────────┤
+│     Cross-Entropy(predicted_probs, true_label) → scalar loss    │
+└─────────────────────────────────────────────────────────────────┘
+								↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    BACKWARD PASS (NEXT LECTURE)                 │
+├─────────────────────────────────────────────────────────────────┤
+│            Compute gradients → Update W₁, W₂ → Repeat           │
+└─────────────────────────────────────────────────────────────────┘
+```
+
