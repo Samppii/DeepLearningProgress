@@ -341,3 +341,56 @@ def train_step(model, features, labels):
 	
 	return loss
 ```
+
+### 9.2 High-Level API (The Easy Way)
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Defining the model
+class FeedForwardModel(nn.Module):
+	def __init__(self, imput_size, hidden_size, output_size):
+		super().__init__()
+		self.fc1 = nn.Linear(input_size, hidden_size) # First Linear Classifier
+		self.fc2 = nn.Linear(hidden_size, output_size) # Second Linear Classifier
+	
+	def forward(self, x):
+		x = torch.relu(self.fc1(x)) # Linear again (Hidden layer + ReLU)
+		x = self.fc2(x) # Linear again (Output Layer)
+		x = torch.log_softmax(x, dim = 1) # Log Probabilities
+
+# Setup		
+model = FeedForwardModel(input_size=10, hidden_size=20, output_size=3)
+criterion = nn.NLLLoss() # Loss function
+optimizer = optim.Adam(model.parameters(), lr = 0.001) # Optimizer
+
+# Training Step
+output = model(input_data) # Forward Pass
+loss = criterion(output, target) # Compute Loss
+
+optimizer.zero_grad() # Reset gradients
+loss.backward() # Backward pass
+optimizer.step() # Update weights
+```
+
+### 9.3 Full Training Loop
+
+```python
+def train_model(model, train_loader, epochs):
+	for epoch in range(epochs):
+		for batch_features, batch_labels in train_loader:
+			# Forward Pass
+			output = model(batch_features)
+			loss = criterion(output, batch_labels)
+			
+			# Backward pass + update
+			optimizer.zero_grad()
+			loss.backward()
+			optimizer.step()
+			
+		print(f"Epoch {epoch}, loss: {loss.item()}")
+
+train_model(model, train_loader, epochs=100)
+```
