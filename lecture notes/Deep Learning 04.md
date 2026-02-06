@@ -375,7 +375,17 @@ loss.backward() # Backward pass
 optimizer.step() # Update weights
 ```
 
-### 9.3 Full Training Loop
+### 9.3 The Three Magic Lines
+
+This is the training loop you'll write 1000 times:
+```python
+optimizer.zero_grad() # Clear Old Gradients
+loss.backward() # Compute New Gradients
+optimizer.step() # Update Weights
+```
+
+---
+## 10. Full Training Loop
 
 ```python
 def train_model(model, train_loader, epochs):
@@ -394,3 +404,123 @@ def train_model(model, train_loader, epochs):
 
 train_model(model, train_loader, epochs=100)
 ```
+
+---
+
+## 11. All Together
+
+```python
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Define the model
+class FeedForwardModel(nn.Module):
+	def __init__(self, input_size, hidden_size, output_size):
+		super().__init__()
+		self.fc1 = nn.Linear(input_size, hidden_size) # First Linear Classifier
+		self.fc2 = nn.Linear(hidden_size, output_size) # Second Linear Classifier
+	def forward(self, x):
+		x = torch.relu(self.fc1(x)) # Linear -> ReLU
+		x = self.fc2(x) # Linear -> raw scores
+		return x
+		
+# SETUP
+input_size = 3072 # Example: 32x32x3 Image Flattened
+hidden_size = 256 # Our choice
+output_size = 10 # 10 Classes
+learning_rate = 0.001 # Standard starting point
+
+model = FeedForwardModel(input_size, hidden_size, output_size)
+criterion = nn.CrossEntropyLoss() # Loss function for images[CrossEntropy]
+optimizer = optim.Adam(model.parameters(), lr = learning_rate) # Optimizer
+
+# Training Loop
+epochs = 100
+
+for epoch in range(epochs):
+	for batch_features, batch_labels in train_loader:
+		# Forward Pass
+		output = model(batch_features) # Predict
+		loss = criterion(output, batch_labels) # How Wrong?
+		
+		# Backward pass + update
+		optimizer.zero_grad() # Clear Old Gradients
+		loss.backward() # Compute Gradients (BackProp)
+		optimizer.step() # Update Weights (W = W - α × gradient)
+		
+	print(f"Epoch {epoch}, Loss: {loss.item()}")
+
+# Use The Model (After Training)
+new_image = torch.randn( 1, 3072) # Some new output
+prediction = model(new_image) # Get Scores
+predicted_class = prediction.argmax() # Highest score = predicted class
+```
+
+Define model → Setup optimizer → Loop (forward → loss → backward → update) → Done
+
+---
+
+## 11. Important Notes
+
+### CrossEntropyLoss vs NLLLoss
+
+```python
+# Option 1: Use LogSoftMax in model + NLLLoss
+class Model(nn.Module):
+	def forward(self, x):
+		#...
+		return torch.log_softmax(x, dim=1) # Log Probabilities
+
+criterion = nn.NLLLoss()
+
+# Option 2: No softmax in model + CrossEntropyLoss
+class Model(nn.Module):
+	def forward(self, x):
+		#...
+		return x # Raw Logits
+
+criterion = nn.CrossEntropyLoss() # Includes softmax internally!
+```
+
+**Don't apply softmax twice!** CrossEntropyLoss already does it.
+
+### requires_grad = True
+
+```python
+self.W = torch.randn(2, 2, requires_grad=True)
+```
+
+This tells PyTorch: "Track all operations on this tensor so we can compute gradients later."
+
+---
+
+## 12. Key Takeaways
+
+1. **Gradient descent** minimizes loss by following the slope downhill.
+2. **Learning rate** controls step size - too big overshoots, too small is slow.
+3. **Backpropagation** uses chain rule to pass gradients from loss back to all weights.
+4. **Batch** = samples per update, **Step** = one update, **Epoch** = full pass through data.
+5. **Adam** is fast for prototyping, **SGD** often gives better final results.
+6. **Local minima** can trap optimizer - not always the best solution.
+7. **PyTorch makes it easy:**
+```python
+optimizer.zero_grad()
+loss.backward()
+optimizer.step()
+```
+8. **Don't double-softmax** - use either LogSoftmax + NLLLoss OR raw logits + CrossEntropyLoss.
+9. **`requires_grad=True`** enables automatic differentiation on a tensor.
+10. **The whole process:** `Forward → Loss → Backward → Update → Repeat millions of times.`
+ 
+---
+
+## Useful Links from Slides
+
+- TensorFlow Playground: https://playground.tensorflow.org 
+- 2D Gradient Descent Demo: https://uclaacm.github.io/gradient-descent-visualiser/#playground 
+- 3D Gradient Descent Demo: https://www.benfrederickson.com/numerical-optimization 
+- 3Blue1Brown Video: https://www.youtube.com/watch?v=IHZwWFHWa-w
+
+---
+*Completed*

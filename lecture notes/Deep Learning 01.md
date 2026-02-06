@@ -174,3 +174,8 @@ The Transformer architecture (Vaswani et al., 2017) is arguably the most importa
 5. **Discriminative vs. Generative** — classifying data vs. generating new data. Both powered by DL.
 6. **AGI doesn't exist yet.** Everything we build is narrow/specialized AI. 
 7. **Transformers (2017)** are the architecture behind the current AI boom.
+
+---
+
+*Completed*
+
