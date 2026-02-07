@@ -64,7 +64,7 @@ deep-learning-csc296s/
 
 | Lab | Topic | Status | Date Completed |
 |-----|-------|--------|----------------|
-| Lab 0 | NumPy Fundamentals | 🟡  |
+| Lab 0 | NumPy Fundamentals | Complete | Feb 2026 |
 | Lab 1 | TBD | ⬜ Not Started | - |
 | Lab 2 | TBD | ⬜ Not Started | - |
 | Lab 3 | TBD | ⬜ Not Started | - |
