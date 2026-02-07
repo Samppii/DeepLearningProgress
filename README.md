@@ -45,20 +45,13 @@ deep-learning-csc296s/
 ├── requirements.txt          # Python dependencies
 ├── .gitignore
 │
-├── lab0/
-│   ├── CSC296S_Lab0_numpy.ipynb    # Original lab notebook
-│   ├── notes.md                     # My notes
-│   └── practice.ipynb               # Extra practice
+├── labs/
+│   └── lab-0/
+│       ├── arraysPractice.ipynb      # NumPy practice notebook
+│       └── LAB-0 NOTES.md            # Lab 0 notes
 │
-├── lab1/
-│   ├── lab1.ipynb
-│   └── notes.md
-│
-├── lab2-.../
-│   └── ...
-│
-└── resources/
-    └── cheatsheets/
+└── lecture notes/
+    └── DL-IMAGES/                    # Lecture diagram assets
 ```
 
 ---
