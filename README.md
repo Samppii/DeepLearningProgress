@@ -51,6 +51,10 @@ deep-learning-csc296s/
 │       └── LAB-0 NOTES.md            # Lab 0 notes
 │
 └── lecture notes/
+    ├── Deep Learning 01.md           # Lecture 1 notes
+    ├── Deep Learning 02.md           # Lecture 2 notes
+    ├── Deep Learning 03.md           # Lecture 3 notes
+    ├── Deep Learning 04.md           # Lecture 4 notes
     └── DL-IMAGES/                    # Lecture diagram assets
 ```
 
