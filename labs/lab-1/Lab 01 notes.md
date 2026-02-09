@@ -259,3 +259,50 @@ df = pd.read_csv('../data/auto-msg.csv', na_values = ['NA', '?', 'NA',''])
 ## Step 6: Sorting & Filtering
 
 ### 6.1 Sorting
+
+```python
+# Sort by one column
+df_sorted = df.sort_values(by='mpg') # Ascending (default)
+df_sorted = df.sort_values(by = 'mpg', ascending = False) # Descending
+
+# Sort by multiple columns
+df_sorted = df.sort_values(by=['cylinders', 'mpg'], ascending=[True, False])
+```
+
+### 6.2 Filtering ( Boolean Indexing )
+
+```python
+
+# Single Condition
+high_mpg = df[df['mpg'] > 30]
+
+# Multiple Conditions
+efficient_4cyl = df[(df['mpg'] > 30) & (df['cylinders'] == 4)]
+
+# Using isin() for multiple values 
+japanese = df[df['origin'].isin([2, 3])] 
+
+# String filtering 
+fords = df[df['name'].str.contains('ford', case=False)] 
+```
+
+### 6.3 Value Counts
+
+```python
+# Count Unique Values in a column
+df['cylinders'].value_counts()
+
+# 4 204
+# 8 103
+# 6 84
+# ...
+```
+
+### Documentation:
+
+- [sort_values()](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_values.html) 
+- [value_counts()](https://pandas.pydata.org/docs/reference/api/pandas.Series.value_counts.html)
+
+---
+
+
