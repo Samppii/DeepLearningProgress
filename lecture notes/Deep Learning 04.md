@@ -322,7 +322,7 @@ class LinearRegression:
 	
 model = LinearRegression()
 
-def train_step(model, features, labels):
+def train_step(model, features, labels): # features = input and labels = output
 	# Forward pass
 	predictions = model.forward(features)
 	loss = model.loss_fn(predictions, labels)
@@ -331,8 +331,8 @@ def train_step(model, features, labels):
 	loss.backward() # Computes all gradients automatically!
 	
 	# Update weights (gradient descent)
-	with torch.no_grad():
-		model.w -= 0.001 * model.w.grad
+	with torch.no_grad(): # disables gradient calculation
+		model.w -= 0.001 * model.w.grad  # Learning rate = 0.001
 		model.b -= 0.001 * model.b.grad
 		
 		# Reset gradients for next iterations
@@ -351,18 +351,18 @@ import torch.optim as optim
 
 # Defining the model
 class FeedForwardModel(nn.Module):
-	def __init__(self, imput_size, hidden_size, output_size):
+	def __init__(self, input_size, hidden_size, output_size):
 		super().__init__()
 		self.fc1 = nn.Linear(input_size, hidden_size) # First Linear Classifier
 		self.fc2 = nn.Linear(hidden_size, output_size) # Second Linear Classifier
 	
-	def forward(self, x):
+	def forward(self, x): # Forward = call in tensowflow
 		x = torch.relu(self.fc1(x)) # Linear again (Hidden layer + ReLU)
 		x = self.fc2(x) # Linear again (Output Layer)
 		x = torch.log_softmax(x, dim = 1) # Log Probabilities
 
 # Setup		
-model = FeedForwardModel(input_size=10, hidden_size=20, output_size=3)
+model = FeedForwardModel(input_size=10, hidden_size=20, output_size=3) # Hyperparameters
 criterion = nn.NLLLoss() # Loss function
 optimizer = optim.Adam(model.parameters(), lr = 0.001) # Optimizer
 
@@ -373,6 +373,14 @@ loss = criterion(output, target) # Compute Loss
 optimizer.zero_grad() # Reset gradients
 loss.backward() # Backward pass
 optimizer.step() # Update weights
+
+def train_model(model, epochs):
+	for epoch in range(1, epochs + 1): # each epoch
+		for features, labels in data_iter(X, Y, batch_size:) # each iteration
+			loss = train_step(model, features, labels)
+			
+		if epoch % 10 == 0:
+			print()
 ```
 
 ### 9.3 The Three Magic Lines
