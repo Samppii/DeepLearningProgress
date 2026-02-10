@@ -147,7 +147,7 @@ missing_median(df, 'horsepower')
 
 ### 4.2 Encode Categorical Data (One-Hot / Dummy)
 
-For **input features** (predictors)L
+For **input features** (predictors):
 
 ```python
 def encode_text_dummy(df, name):
@@ -160,5 +160,144 @@ for x in dummies.columns:
 	df.drop(name, axis=1, inplace=True)
 	
 # Usage
-encode_text_dummy(df, 'origin) # Creates origin-1, origin-2, origin-3
+encode_text_dummy(df, 'origin') # Creates origin-1, origin-2, origin-3
 ```
+
+### 4.3 Encode Categorical Data (Label Encoding)
+
+For **output/target** variable:
+
+```python
+def encode_text_index(df, name):
+	"""Convert categories to integers setosa, vesicolor, virginica -> 0, 1, 2"""
+	le = preprocessing.LabelEncoder()
+	df[name] = le.fit_transform(df[name])
+	return le.classes_ # Returns the original class names
+	
+# Usage
+species = encode_text_index(df, 'species')
+# Species = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginca']
+```
+
+### 4.4 Normalize Numeric Data (Z-Score)
+
+```python
+def encode_numeric_zscore(df, name, mean=None, sd=None):
+	"""Normalize using z-score: (value - mean) / std"""
+	if mean is None:
+		mean = df[name].mean()
+	if sd is None:
+		sd = df[name].std()
+	df[name] = (df[name] - mean) / sd
+	
+# Usage
+encode_numeric_zscore(df, 'horsepower')
+encode_numeric_zscore(df, 'weight')
+```
+
+**Why normalize?** Neural Networks train faster and better when all features are on similar scales.
+
+### 4.5 Convert DataFrame to X, y
+
+```python
+def to_xy(df, target):
+	"""
+	Split dataframe into:
+	- x: feature matrix (all columns expect target)
+	- y: target vector (the column you're predicting)
+	  
+	Automatically handles classification vs regression
+	"""
+	result = []
+	for x in df.columns:
+		if x != target:
+			result.append(x)
+			
+	target_type = df[target].dtypes
+	
+	if target_type in (np.int64, np.int32):
+		# Classification - one-hot encode target
+		dummies = pd.get_dummies(df[target])
+		return df[result].values.astype(np.float32), dummies.values.astype(np.float32)
+	else:
+		# Regression - keep target as-is
+		return df[result].values.astype(np.float32), df[target].values.astype(np.float32)
+		
+# Usage
+x, y = to_xy(df, 'mpg') # Regression
+x, y = to_xy(df, 'species') # Classification
+```
+
+### Preprocessing Workflow Summary
+
+**For Input Features (x):**
+1. Fill missing values → `missing_median()`
+2. Encode text/categorical → `encode_text_dummy()`
+3. Normalize numeric → `encode_numeric_zscore()`
+
+**For Output/Target (y):**
+1. Drop rows with missing target
+2. Encode text/categorical → `encode_text_index()`
+3. Do NOT normalize numeric targets
+
+**Finally:**
+- Convert to x, y → `to_xy()`
+
+---
+
+## Step 5: Regression Example - MPG prediction
+
+Predict a car's fuel efficiency (MPG) based on its features/
+
+### 5.1 Load and Explore Data
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn import metrics
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+path = "./data/"
+df = pd.read_csv(path + "auto-mpg.csv", na_values=['NA', '?'])
+df.head()
+```
+
+### 5.2 Preprocess Data
+
+```python
+# Save car names for later (not a feature)
+cars = df['name']
+df.drop('name', axis=1, inplace=True)
+
+# Fill missing horsepower with median
+missing_median(df, 'horsepower')
+
+# Encode categorical 'origin' as dummy variables
+encode_text_dummy(df, 'orgin')
+
+# Convert to x, y
+x, y = to_xy(df, 'mpg')
+
+print(x.shape) # (398, 9) - 398 cars, 9 features
+print(y.shape) # (398, ) - 398 MPG values
+```
+
+### 5.3 Build the Model
+
+```python
+model = Sequential()
+
+# Hidden layer 1: 50 neurons
+model.add(Dense(50, input_dim=x.shape[1], activation='relu'))
+
+# Hidden layer 2: 25 neurons
+model.add(Dense(25, activation='relu'))
+
+# Output layer: 1 neuron (regression)
+model.add(Dense(1))
+
+# Compile
+model.compile(loss='mean_squared_error', optimizer='adam')
+```
+
